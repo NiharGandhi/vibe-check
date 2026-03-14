@@ -1,0 +1,2386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VibeCheck — Curated Dining, Elevated</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ──────────────────────────────────────────────── */
+:root{
+  --ink:        #0D0D0D;
+  --ink-2:      #2A2A2A;
+  --ink-3:      #555;
+  --muted:      #999;
+  --border:     #E8E8E8;
+  --bg:         #F7F5F0;
+  --card:       #FFFFFF;
+  --lime:       #C8F135;
+  --lime-dim:   #B0D91E;
+  --lime-tint:  #F3FBD8;
+  --accent:     #1A1A1A;
+  --r:          12px;
+  --r-lg:       20px;
+  --sh-sm:      0 1px 4px rgba(0,0,0,.06);
+  --sh-md:      0 4px 24px rgba(0,0,0,.09);
+  --sh-lg:      0 16px 56px rgba(0,0,0,.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+img{display:block;max-width:100%}
+a{text-decoration:none;color:inherit}
+
+/* ── SCROLLBAR ────────────────────────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px}
+
+/* ── TOPNAV ──────────────────────────────────────────────── */
+.topnav{
+  position:sticky;top:0;z-index:200;
+  background:rgba(247,245,240,.95);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:32px;
+  padding:0 48px;height:64px;
+}
+.nav-brand{
+  font-family:'Playfair Display',serif;font-size:22px;font-weight:700;
+  letter-spacing:-.3px;white-space:nowrap;flex-shrink:0;
+  display:flex;align-items:center;gap:8px
+}
+.nav-brand-dot{width:8px;height:8px;background:var(--lime);border-radius:50%;flex-shrink:0;margin-top:-2px}
+.nav-links{display:flex;align-items:center;gap:4px;margin-right:auto}
+.nav-link{
+  font-size:14px;font-weight:500;color:var(--ink-3);
+  padding:6px 14px;border-radius:8px;cursor:pointer;
+  transition:color .15s,background .15s;border:none;background:none
+}
+.nav-link:hover{color:var(--ink);background:rgba(0,0,0,.05)}
+.nav-link.active{color:var(--ink);background:var(--ink);color:#fff}
+
+/* LOCATION PICKER */
+.location-pick{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);
+  background:var(--card);cursor:pointer;font-size:13px;font-weight:500;
+  transition:border-color .15s;position:relative;white-space:nowrap
+}
+.location-pick:hover{border-color:#aaa}
+.location-pick svg{color:var(--lime-dim);flex-shrink:0}
+.location-pick .loc-name{max-width:120px;overflow:hidden;text-overflow:ellipsis}
+
+/* NAV SEARCH */
+.nav-search-wrap{position:relative;flex:1;max-width:380px}
+.nav-search{
+  width:100%;height:38px;border-radius:100px;
+  border:1.5px solid var(--border);background:var(--card);
+  padding:0 14px 0 38px;font-family:'DM Sans',sans-serif;
+  font-size:14px;outline:none;transition:border-color .15s
+}
+.nav-search:focus{border-color:var(--ink);background:#fff}
+.nav-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+
+/* NAV RIGHT */
+.nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.nav-icon-btn{
+  width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border);
+  background:var(--card);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;color:var(--ink-3);transition:all .15s;position:relative
+}
+.nav-icon-btn:hover{border-color:var(--ink);color:var(--ink)}
+.notif-dot{position:absolute;top:0;right:0;width:8px;height:8px;background:#FF4545;border-radius:50%;border:2px solid var(--bg)}
+.nav-avatar{
+  width:36px;height:36px;border-radius:50%;overflow:hidden;
+  cursor:pointer;border:2px solid var(--lime);flex-shrink:0
+}
+.nav-avatar img{width:100%;height:100%;object-fit:cover}
+.nav-signin-btn{
+  height:36px;padding:0 16px;border-radius:20px;border:1.5px solid var(--ink);
+  background:var(--ink);color:#fff;font-size:13px;font-weight:600;cursor:pointer;
+  white-space:nowrap;transition:all .15s;flex-shrink:0
+}
+.nav-signin-btn:hover{background:var(--ink-2);border-color:var(--ink-2)}
+
+/* ── AUTH MODAL ──────────────────────────────────────────── */
+.auth-backdrop{
+  position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.55);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s
+}
+.auth-backdrop.open{opacity:1;pointer-events:all}
+.auth-modal{
+  background:var(--card);border-radius:24px;width:100%;max-width:420px;
+  padding:40px 36px;box-shadow:var(--sh-lg);position:relative;
+  transform:translateY(12px);transition:transform .25s
+}
+.auth-backdrop.open .auth-modal{transform:translateY(0)}
+.auth-close{
+  position:absolute;top:16px;right:16px;
+  width:32px;height:32px;border-radius:50%;border:none;
+  background:var(--bg);cursor:pointer;font-size:17px;
+  display:flex;align-items:center;justify-content:center;color:var(--ink-3)
+}
+.auth-logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:6px}
+.auth-tagline{font-size:13px;color:var(--muted);margin-bottom:28px}
+.auth-tabs{display:flex;gap:4px;background:var(--bg);border-radius:12px;padding:4px;margin-bottom:24px}
+.auth-tab{
+  flex:1;padding:8px;border-radius:8px;border:none;background:transparent;
+  font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s
+}
+.auth-tab.active{background:var(--card);color:var(--ink);box-shadow:var(--sh-sm)}
+.auth-field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.auth-field label{font-size:12px;font-weight:600;color:var(--ink-2);letter-spacing:.3px}
+.auth-field input{
+  padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;
+  font-size:14px;font-family:inherit;background:var(--bg);color:var(--ink);
+  transition:border-color .15s;outline:none
+}
+.auth-field input:focus{border-color:var(--ink)}
+.auth-submit{
+  width:100%;padding:13px;border-radius:12px;border:none;
+  background:var(--ink);color:#fff;font-size:14px;font-weight:700;
+  cursor:pointer;margin-top:8px;transition:all .15s;letter-spacing:.2px
+}
+.auth-submit:hover{background:var(--ink-2)}
+.auth-submit:disabled{opacity:.5;cursor:not-allowed}
+.auth-err{
+  font-size:12px;color:#e53e3e;background:#fff5f5;border:1px solid #fed7d7;
+  border-radius:8px;padding:10px 12px;margin-top:12px;display:none
+}
+.auth-err.show{display:block}
+.auth-sep{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted);font-size:12px}
+.auth-sep::before,.auth-sep::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* profile menu */
+.profile-menu{
+  position:absolute;top:calc(100% + 8px);right:0;min-width:180px;
+  background:var(--card);border-radius:16px;border:1px solid var(--border);
+  box-shadow:var(--sh-md);padding:8px;opacity:0;pointer-events:none;
+  transform:translateY(-4px);transition:all .15s;z-index:300
+}
+.profile-menu.open{opacity:1;pointer-events:all;transform:translateY(0)}
+.profile-menu-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;
+  color:var(--ink);transition:background .1s
+}
+.profile-menu-item:hover{background:var(--bg)}
+.profile-menu-item.danger{color:#e53e3e}
+.profile-menu-sep{height:1px;background:var(--border);margin:4px 0}
+.profile-name{font-size:13px;font-weight:700;padding:8px 12px 4px;color:var(--ink-3)}
+
+/* ── LOCATION DROPDOWN ────────────────────────────────────── */
+.loc-dropdown{
+  position:absolute;top:calc(100% + 8px);left:0;width:300px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  box-shadow:var(--sh-lg);padding:12px;z-index:300;
+  opacity:0;pointer-events:none;transform:translateY(-6px);
+  transition:opacity .15s,transform .15s
+}
+.loc-dropdown.open{opacity:1;pointer-events:all;transform:translateY(0)}
+.loc-input-wrap{position:relative;margin-bottom:8px}
+.loc-input{
+  width:100%;height:38px;border:1.5px solid var(--border);
+  border-radius:8px;padding:0 12px 0 34px;font-family:'DM Sans',sans-serif;
+  font-size:13px;outline:none
+}
+.loc-input:focus{border-color:var(--ink)}
+.loc-input-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.loc-suggestions{list-style:none;max-height:200px;overflow-y:auto}
+.loc-suggestion{
+  padding:9px 10px;border-radius:8px;font-size:13px;cursor:pointer;
+  display:flex;align-items:center;gap:8px;transition:background .12s
+}
+.loc-suggestion:hover{background:var(--bg)}
+.loc-suggestion .city-name{font-weight:500}
+.loc-suggestion .country-name{color:var(--muted);font-size:12px}
+.loc-use-current{
+  width:100%;padding:9px;border:1.5px solid var(--lime);
+  background:var(--lime-tint);border-radius:8px;font-size:13px;
+  font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:background .15s;margin-bottom:8px
+}
+.loc-use-current:hover{background:var(--lime)}
+.loc-loading{padding:16px;text-align:center;color:var(--muted);font-size:13px}
+
+/* ── PAGE SECTIONS ────────────────────────────────────────── */
+.page{display:none}
+.page.active{display:block}
+
+/* ── HERO ─────────────────────────────────────────────────── */
+.hero{
+  min-height:560px;background:var(--ink);
+  display:grid;grid-template-columns:1fr 1fr;
+  overflow:hidden;position:relative
+}
+.hero-left{
+  padding:72px 56px;display:flex;flex-direction:column;
+  justify-content:center;position:relative;z-index:1
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--lime);margin-bottom:20px
+}
+.hero-eyebrow span{width:24px;height:1px;background:var(--lime);display:block}
+.hero-h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(40px,5vw,64px);font-weight:700;
+  color:#fff;line-height:1.08;letter-spacing:-.02em;
+  margin-bottom:18px
+}
+.hero-h1 em{color:var(--lime);font-style:italic}
+.hero-sub{
+  color:#aaa;font-size:16px;line-height:1.6;
+  max-width:400px;margin-bottom:36px
+}
+.hero-search-bar{
+  display:flex;background:#fff;border-radius:14px;
+  overflow:hidden;box-shadow:var(--sh-lg);max-width:520px
+}
+.hero-search-bar input{
+  flex:1;border:none;outline:none;padding:16px 20px;
+  font-family:'DM Sans',sans-serif;font-size:15px;background:transparent
+}
+.hero-search-bar button{
+  background:var(--lime);border:none;padding:0 28px;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;transition:background .15s;white-space:nowrap
+}
+.hero-search-bar button:hover{background:var(--lime-dim)}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
+.hero-tag{
+  padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.15);
+  color:#ccc;font-size:13px;cursor:pointer;transition:all .18s
+}
+.hero-tag:hover,.hero-tag.active{
+  background:var(--lime);border-color:var(--lime);color:var(--ink)
+}
+.hero-right{position:relative;overflow:hidden}
+.hero-right-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr 1fr;gap:3px;height:100%;
+}
+.hero-img{overflow:hidden;position:relative}
+.hero-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.hero-img:hover img{transform:scale(1.04)}
+.hero-img:first-child{grid-row:span 2}
+.hero-img-label{
+  position:absolute;bottom:10px;left:10px;
+  background:rgba(0,0,0,.65);backdrop-filter:blur(6px);
+  color:#fff;padding:4px 10px;border-radius:100px;
+  font-size:11px;font-weight:500
+}
+.hero-stats{
+  display:flex;gap:0;margin-top:36px;
+  border-top:1px solid rgba(255,255,255,.1);padding-top:28px
+}
+.hero-stat{flex:1;border-right:1px solid rgba(255,255,255,.1)}
+.hero-stat:last-child{border-right:none}
+.hero-stat-val{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--lime)}
+.hero-stat-label{font-size:12px;color:#888;margin-top:2px}
+
+/* ── SECTION ──────────────────────────────────────────────── */
+.section{padding:56px 48px}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px}
+.section-label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.section-title{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;letter-spacing:-.02em}
+.section-action{font-size:13px;font-weight:500;color:var(--ink-3);cursor:pointer;border-bottom:1px solid transparent;transition:border-color .15s;padding-bottom:1px}
+.section-action:hover{border-color:var(--ink-3);color:var(--ink)}
+
+/* ── VIBE FILTERS ─────────────────────────────────────────── */
+.vibe-filters{
+  display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px
+}
+.vibe-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 20px;border-radius:100px;
+  border:1.5px solid var(--border);background:var(--card);
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;transition:all .18s;color:var(--ink-3)
+}
+.vibe-btn:hover{border-color:var(--ink-3);color:var(--ink)}
+.vibe-btn.active{background:var(--ink);border-color:var(--ink);color:#fff}
+.vibe-btn .v-emoji{font-size:15px;line-height:1}
+
+/* ── CARDS ────────────────────────────────────────────────── */
+.cards-row{display:flex;gap:20px;overflow-x:auto;padding-bottom:16px;scroll-snap-type:x mandatory;align-items:flex-start}
+.cards-row::-webkit-scrollbar{height:3px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}
+
+/* Portrait card — image bleeds into dark gradient bottom (like inspo) */
+.card{
+  position:relative;border-radius:28px;overflow:hidden;
+  cursor:pointer;transition:transform .26s cubic-bezier(.34,1.3,.64,1),box-shadow .26s;
+  box-shadow:var(--sh-md);scroll-snap-align:start;flex-shrink:0;
+  width:260px;height:380px;background:#111;
+  display:flex;flex-direction:column;
+}
+.card:hover{transform:translateY(-8px) scale(1.01);box-shadow:0 28px 72px rgba(0,0,0,.22)}
+.cards-grid .card{width:auto}
+
+/* Full-bleed image that fills the card and zooms on hover */
+.card-img{
+  position:absolute;inset:0;z-index:0
+}
+.card-img img{
+  width:100%;height:100%;object-fit:cover;
+  transition:transform .5s cubic-bezier(.25,.46,.45,.94);
+  will-change:transform
+}
+.card:hover .card-img img{transform:scale(1.07)}
+
+/* Gradient: transparent top → dark bottom (50% clear, rest dark) */
+.card-img-overlay{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(
+    to bottom,
+    rgba(0,0,0,0)    0%,
+    rgba(0,0,0,0)    38%,
+    rgba(0,0,0,.55)  60%,
+    rgba(0,0,0,.85)  100%
+  )
+}
+
+/* Save button top-right */
+.card-save{
+  position:absolute;top:14px;right:14px;z-index:3;
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.15);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.25);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;transition:all .18s
+}
+.card-save:hover,.card-save.saved{background:var(--lime);border-color:var(--lime)}
+
+/* Rating badge top-left */
+.card-rating-badge{
+  position:absolute;top:14px;left:14px;z-index:3;
+  display:flex;align-items:center;gap:4px;
+  background:rgba(0,0,0,.45);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.15);
+  color:#fff;border-radius:100px;padding:4px 10px;
+  font-size:12px;font-weight:600
+}
+.star-svg{width:11px;height:11px;fill:#FFD600;flex-shrink:0}
+
+/* Dot pager (static decoration matching inspo) */
+.card-dots{
+  position:absolute;bottom:100px;left:50%;transform:translateX(-50%);
+  z-index:3;display:flex;gap:5px
+}
+.card-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.4)}
+.card-dot.on{background:#fff;width:14px;border-radius:100px}
+
+/* Content sits at the bottom, over the dark gradient */
+.card-body{
+  position:relative;z-index:2;margin-top:auto;
+  padding:0 18px 18px
+}
+.card-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.card-name{
+  font-family:'Playfair Display',serif;
+  font-size:18px;font-weight:700;color:#fff;
+  letter-spacing:-.01em;line-height:1.2;flex:1
+}
+.card-price-pill{
+  background:rgba(255,255,255,.18);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.2);
+  color:#fff;border-radius:100px;padding:4px 10px;
+  font-size:12px;font-weight:600;white-space:nowrap;flex-shrink:0;
+  margin-top:2px
+}
+.card-addr{
+  font-size:12px;color:rgba(255,255,255,.6);
+  margin-bottom:10px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+.card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tag{
+  font-size:11px;font-weight:500;
+  padding:4px 10px;border-radius:100px;
+  background:rgba(255,255,255,.13);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.9)
+}
+/* Match bar (subtle, below tags) */
+.match-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.match-track{flex:1;height:2px;background:rgba(255,255,255,.15);border-radius:100px;overflow:hidden}
+.match-fill{height:100%;background:var(--lime);border-radius:100px}
+.match-label{font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap}
+
+/* White pill Reserve button */
+.card-reserve-btn{
+  width:100%;padding:13px;border-radius:100px;border:none;
+  background:#fff;color:var(--ink);
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;transition:background .15s,transform .15s;
+  letter-spacing:.01em
+}
+.card-reserve-btn:hover{background:var(--lime);transform:translateY(-1px)}
+
+.card-source{display:none} /* hidden — cleaner look */
+
+/* ── FEATURED CARD (wide) ─────────────────────────────────── */
+.featured-grid{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:280px;gap:16px;margin-bottom:16px}
+.featured-card{border-radius:var(--r-lg);overflow:hidden;cursor:pointer;position:relative;background:#111}
+.featured-card img{width:100%;height:100%;object-fit:cover;opacity:.85;transition:opacity .3s,transform .4s}
+.featured-card:hover img{opacity:.7;transform:scale(1.04)}
+.featured-card-info{position:absolute;bottom:0;left:0;right:0;padding:20px;background:linear-gradient(to top,rgba(0,0,0,.8),transparent)}
+.featured-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
+.featured-name-sm{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:#fff;margin-bottom:4px}
+.featured-sub{font-size:12px;color:rgba(255,255,255,.7)}
+.featured-card:first-child .featured-name{font-size:26px}
+
+/* ── TWO-COL LAYOUT ───────────────────────────────────────── */
+.two-col{display:grid;grid-template-columns:1fr 340px;gap:40px;padding:56px 48px;align-items:start}
+.sidebar-panel{background:var(--card);border-radius:var(--r-lg);padding:24px;box-shadow:var(--sh-sm);position:sticky;top:80px}
+.panel-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:20px}
+
+/* ── LEADERBOARD ──────────────────────────────────────────── */
+.lb-podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin-bottom:24px;padding:0 8px}
+.lb-pod{display:flex;flex-direction:column;align-items:center;gap:6px}
+.lb-pod:nth-child(2){order:-1}
+.pod-av{border-radius:50%;overflow:hidden;border:3px solid transparent;position:relative;flex-shrink:0}
+.pod-av.g{border-color:#F7D800;width:64px;height:64px}
+.pod-av.s{border-color:#B8B8B8;width:54px;height:54px}
+.pod-av.b{border-color:#C68642;width:48px;height:48px}
+.pod-av img{width:100%;height:100%;object-fit:cover}
+.pod-badge{
+  position:absolute;bottom:-6px;right:-6px;
+  width:22px;height:22px;border-radius:50%;
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center
+}
+.pod-badge.g{background:#F7D800;color:#000}
+.pod-badge.s{background:#B8B8B8;color:#000}
+.pod-badge.b{background:#C68642;color:#fff}
+.pod-name{font-size:13px;font-weight:600;text-align:center}
+.pod-score{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;text-align:center}
+.pod-block{border-radius:8px 8px 0 0;width:72px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px}
+.pod-block.g{height:56px;background:linear-gradient(135deg,#FFE566,#F7D800)}
+.pod-block.s{height:40px;background:linear-gradient(135deg,#E0E0E0,#B8B8B8)}
+.pod-block.b{height:28px;background:linear-gradient(135deg,#DFA070,#C68642)}
+
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 6px;border-radius:10px;transition:background .12s;cursor:pointer}
+.lb-row:hover{background:var(--bg)}
+.lb-row.me{background:var(--lime-tint)}
+.lb-rank{font-size:13px;font-weight:700;color:var(--muted);width:24px;text-align:center;flex-shrink:0}
+.lb-av{width:38px;height:38px;border-radius:50%;overflow:hidden;flex-shrink:0}
+.lb-av img{width:100%;height:100%;object-fit:cover}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-sub{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;margin-top:1px}
+.lb-score{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;flex-shrink:0}
+
+/* ── SEARCH PAGE ──────────────────────────────────────────── */
+.search-page-header{
+  background:var(--ink);padding:48px 48px 36px;
+  display:flex;flex-direction:column;gap:20px
+}
+.search-page-h1{
+  font-family:'Playfair Display',serif;
+  font-size:36px;font-weight:700;color:#fff
+}
+.search-full-bar{
+  display:flex;gap:12px;align-items:center
+}
+.search-full-input{
+  flex:1;height:52px;border:none;border-radius:12px;
+  padding:0 20px 0 48px;font-family:'DM Sans',sans-serif;
+  font-size:15px;background:#fff;outline:none
+}
+.search-full-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search-full-wrap{position:relative;flex:1}
+.type-pills{display:flex;gap:8px;flex-wrap:wrap}
+.type-pill{
+  padding:7px 16px;border-radius:100px;border:1.5px solid rgba(255,255,255,.18);
+  color:#ccc;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;background:none
+}
+.type-pill:hover,.type-pill.active{background:var(--lime);border-color:var(--lime);color:var(--ink)}
+.search-results-area{padding:40px 48px}
+.results-count{font-size:14px;color:var(--muted);margin-bottom:24px}
+
+/* ── DETAIL MODAL ─────────────────────────────────────────── */
+.overlay{
+  position:fixed;inset:0;background:rgba(10,10,10,.6);
+  backdrop-filter:blur(8px);z-index:500;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+  opacity:0;pointer-events:none;transition:opacity .2s
+}
+.overlay.open{opacity:1;pointer-events:all}
+.drawer{
+  width:100%;max-width:980px;max-height:90vh;
+  background:var(--bg);border-radius:24px;overflow:hidden;
+  display:flex;flex-direction:column;
+  transform:scale(.96) translateY(16px);
+  transition:transform .3s cubic-bezier(.34,1.3,.64,1)
+}
+.overlay.open .drawer{transform:scale(1) translateY(0)}
+
+.drawer-hero{
+  height:300px;position:relative;flex-shrink:0;
+  display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:3px;
+  background:#111
+}
+.drawer-hero-img{overflow:hidden}
+.drawer-hero-img img{width:100%;height:100%;object-fit:cover}
+.drawer-hero-img:first-child{grid-row:1/span 2}
+.drawer-hero-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to right,rgba(0,0,0,.6) 0%,transparent 40%);
+  pointer-events:none
+}
+.drawer-close{
+  position:absolute;top:16px;left:16px;width:38px;height:38px;
+  border-radius:50%;background:rgba(255,255,255,.92);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:17px;
+  backdrop-filter:blur(4px)
+}
+.drawer-actions{
+  position:absolute;top:16px;right:16px;
+  display:flex;gap:8px
+}
+.drawer-action-btn{
+  width:38px;height:38px;border-radius:50%;
+  background:rgba(255,255,255,.92);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);font-size:16px
+}
+.drawer-hero-title{
+  position:absolute;bottom:20px;left:20px;right:20px;
+  pointer-events:none
+}
+.drawer-place-name{
+  font-family:'Playfair Display',serif;
+  font-size:28px;font-weight:700;color:#fff;
+  text-shadow:0 2px 12px rgba(0,0,0,.5);margin-bottom:6px
+}
+.drawer-place-addr{
+  font-size:13px;color:rgba(255,255,255,.8);
+  display:flex;align-items:center;gap:4px
+}
+.drawer-body{
+  flex:1;overflow-y:auto;
+  display:grid;grid-template-columns:1fr 340px;gap:0
+}
+.drawer-main{padding:28px 32px;border-right:1px solid var(--border)}
+.drawer-side{padding:28px 24px}
+
+/* drawer sections */
+.d-section{margin-bottom:28px}
+.d-section-title{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+
+/* stats strip */
+.d-stats{display:flex;gap:0;background:var(--card);border-radius:14px;overflow:hidden;box-shadow:var(--sh-sm);margin-bottom:24px}
+.d-stat{flex:1;padding:16px;text-align:center;border-right:1px solid var(--border)}
+.d-stat:last-child{border-right:none}
+.d-stat-val{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:2px}
+.d-stat-label{font-size:11px;color:var(--muted);font-weight:500}
+
+/* live pill */
+.live-strip{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;background:var(--lime-tint);
+  border-radius:12px;border:1px solid rgba(181,230,40,.4);
+  margin-bottom:20px
+}
+.live-dot{width:9px;height:9px;background:#22C55E;border-radius:50%;animation:blink 2s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.live-status{font-size:14px;font-weight:500;flex:1}
+.live-pct{font-family:'Playfair Display',serif;font-size:20px;font-weight:700}
+
+/* bar chart */
+.hour-chart{display:flex;align-items:flex-end;gap:2.5px;height:64px;margin-bottom:6px}
+.hbar{flex:1;border-radius:3px 3px 0 0;background:var(--border);transition:background .2s}
+.hbar.now{background:var(--lime)}
+.hbar.past{background:#d8d8d8}
+.hour-labels{display:flex;gap:0;font-size:9px;color:var(--muted);margin-top:2px}
+.hlbl{flex:1;text-align:center}
+
+/* vibe tags */
+.vibe-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.vibe-tag-big{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:100px;
+  background:var(--card);border:1.5px solid var(--border);
+  font-size:13px;font-weight:500
+}
+
+/* reviews */
+.review-card{background:var(--card);border-radius:12px;padding:14px;margin-bottom:10px}
+.rev-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.rev-av{width:30px;height:30px;border-radius:50%;background:var(--lime);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+.rev-name{font-size:13px;font-weight:600}
+.rev-when{font-size:11px;color:var(--muted);margin-left:auto}
+.rev-text{font-size:13px;color:var(--ink-3);line-height:1.55}
+
+/* skeleton */
+.skel{border-radius:6px;background:linear-gradient(90deg,#eee 25%,#e0e0e0 50%,#eee 75%);background-size:200% 100%;animation:shimmer 1.2s infinite}
+@keyframes shimmer{to{background-position:-200% 0}}
+
+/* reservation panel */
+.reserve-panel{background:var(--ink);border-radius:16px;padding:22px;color:#fff;margin-bottom:20px}
+.res-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.res-title svg{width:18px;height:18px;stroke:var(--lime);fill:none}
+.date-strip{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+.date-strip::-webkit-scrollbar{display:none}
+.d-chip{
+  flex-shrink:0;padding:8px 14px;border-radius:10px;
+  border:1.5px solid rgba(255,255,255,.12);cursor:pointer;
+  text-align:center;transition:all .14s;min-width:56px
+}
+.d-chip.active{background:var(--lime);border-color:var(--lime);color:var(--ink)}
+.d-chip-day{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:2px}
+.d-chip.active .d-chip-day{color:rgba(0,0,0,.6)}
+.d-chip-num{font-family:'Playfair Display',serif;font-size:18px;font-weight:700}
+.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.t-slot{
+  padding:9px 6px;border-radius:8px;border:1.5px solid rgba(255,255,255,.1);
+  text-align:center;font-size:13px;font-weight:500;cursor:pointer;transition:all .14s
+}
+.t-slot:hover:not(.na){border-color:rgba(200,241,53,.5);color:var(--lime)}
+.t-slot.active{background:var(--lime);border-color:var(--lime);color:var(--ink)}
+.t-slot.na{opacity:.28;cursor:not-allowed}
+.guests-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.guests-lbl{font-size:14px;font-weight:500;flex:1}
+.g-ctrl{display:flex;align-items:center;gap:8px}
+.g-btn{
+  width:28px;height:28px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.2);background:none;
+  color:#fff;font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .14s
+}
+.g-btn:hover{background:rgba(255,255,255,.1)}
+.g-num{font-family:'Playfair Display',serif;font-weight:700;font-size:18px;min-width:22px;text-align:center}
+.res-btn{
+  width:100%;padding:14px;background:var(--lime);border:none;
+  border-radius:10px;font-family:'DM Sans',sans-serif;
+  font-size:15px;font-weight:600;cursor:pointer;transition:all .18s
+}
+.res-btn:hover{background:var(--lime-dim);transform:translateY(-1px)}
+
+/* vibe check-in */
+.vc-btns{display:flex;gap:8px}
+.vc-btn{
+  flex:1;padding:10px 8px;border-radius:10px;
+  border:1.5px solid var(--border);background:none;
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  cursor:pointer;transition:all .15s;display:flex;flex-direction:column;
+  align-items:center;gap:5px
+}
+.vc-btn:hover{border-color:var(--lime-dim);background:var(--lime-tint)}
+.vc-btn.sel{background:var(--lime);border-color:var(--lime);color:var(--ink)}
+.vc-icon{font-size:20px;line-height:1}
+.vc-submit{
+  width:100%;padding:10px;border:1.5px solid var(--border);
+  border-radius:10px;background:none;font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:500;cursor:pointer;margin-top:10px;
+  transition:all .15s
+}
+.vc-submit:hover{border-color:var(--ink);background:var(--ink);color:#fff}
+
+/* ── CONFIRM MODAL ────────────────────────────────────────── */
+.confirm-wrap{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  backdrop-filter:blur(10px);z-index:600;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+  opacity:0;pointer-events:none;transition:opacity .2s
+}
+.confirm-wrap.open{opacity:1;pointer-events:all}
+.confirm-box{
+  background:#fff;border-radius:24px;padding:36px;max-width:420px;
+  width:100%;text-align:center;
+  transform:translateY(20px) scale(.96);
+  transition:transform .3s cubic-bezier(.34,1.3,.64,1)
+}
+.confirm-wrap.open .confirm-box{transform:translateY(0) scale(1)}
+.confirm-icon{width:64px;height:64px;background:var(--lime);border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:30px}
+.confirm-h{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:8px}
+.confirm-p{color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.5}
+.confirm-rows{background:var(--bg);border-radius:12px;padding:16px;text-align:left;margin-bottom:24px}
+.confirm-row{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-bottom:1px solid var(--border)}
+.confirm-row:last-child{border-bottom:none}
+.confirm-row-lbl{color:var(--muted)}
+.confirm-row-val{font-weight:600}
+.confirm-done{width:100%;padding:14px;background:var(--ink);color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer}
+
+/* ── TOAST ────────────────────────────────────────────────── */
+.toasts{position:fixed;bottom:28px;right:28px;z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:flex-end}
+.toast{
+  background:var(--ink);color:#fff;padding:12px 18px;border-radius:14px;
+  font-size:14px;font-weight:500;box-shadow:var(--sh-lg);pointer-events:all;
+  display:flex;align-items:center;gap:10px;
+  transform:translateX(20px);opacity:0;transition:all .25s
+}
+.toast.in{transform:translateX(0);opacity:1}
+.toast .t-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.toast .t-icon.ok{background:var(--lime);color:var(--ink)}
+.toast .t-icon.err{background:#FF4545;color:#fff}
+
+/* ── EMPTY / LOADING ──────────────────────────────────────── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 32px;text-align:center;gap:10px;grid-column:1/-1}
+.empty-emoji{font-size:44px;margin-bottom:6px}
+.empty-h{font-family:'Playfair Display',serif;font-size:22px;font-weight:700}
+.empty-p{font-size:14px;color:var(--muted);max-width:280px;line-height:1.5}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--lime);border-radius:50%;animation:spin .65s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-block{display:flex;flex-direction:column;align-items:center;gap:12px;padding:48px;color:var(--muted);font-size:14px}
+
+/* ── FOOTER ───────────────────────────────────────────────── */
+.footer{background:var(--ink);color:#888;padding:32px 48px;display:flex;align-items:center;justify-content:space-between;font-size:13px;margin-top:60px}
+.footer-brand{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--lime)}
+
+/* ── UTILITY ──────────────────────────────────────────────── */
+.hide{display:none!important}
+
+/* ── AI CHAT WIDGET ───────────────────────────────────────── */
+.chat-toggle{
+  position:fixed;right:28px;bottom:28px;z-index:9999;
+  width:54px;height:54px;border-radius:50%;
+  border:none;cursor:pointer;
+  background:var(--ink);color:var(--lime);
+  box-shadow:0 8px 32px rgba(0,0,0,.28);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;transition:transform .2s,background .2s;
+  pointer-events:all;
+}
+.chat-toggle:hover{transform:scale(1.08);background:#222}
+.chat-toggle *{pointer-events:none}
+.chat-panel{
+  position:fixed;right:28px;bottom:96px;z-index:9998;
+  width:380px;max-height:580px;
+  background:#FAFAF8;border-radius:22px;
+  box-shadow:0 24px 80px rgba(0,0,0,.18);
+  display:flex;flex-direction:column;
+  overflow:hidden;border:1px solid var(--border);
+}
+.chat-header{
+  padding:14px 18px 13px;
+  background:var(--ink);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.chat-header-left{display:flex;align-items:center;gap:10px}
+.chat-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--lime);display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:var(--ink);flex-shrink:0
+}
+.chat-title{font-size:13px;font-weight:600;color:#fff}
+.chat-subtitle{font-size:11px;color:#888;margin-top:1px}
+.chat-close-btn{
+  border:none;background:rgba(255,255,255,.1);color:#aaa;
+  width:26px;height:26px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+  transition:background .15s;
+}
+.chat-close-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+.chat-body{
+  flex:1;padding:14px 14px 8px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:10px;
+  scrollbar-width:thin;
+}
+/* AI bubble */
+.chat-bubble-ai{
+  align-self:flex-start;max-width:88%;
+  background:#fff;border:1px solid var(--border);
+  border-radius:4px 16px 16px 16px;
+  padding:10px 13px;font-size:13px;color:var(--ink-3);
+  line-height:1.55;box-shadow:var(--sh-sm);
+}
+/* User bubble */
+.chat-bubble-user{
+  align-self:flex-end;max-width:80%;
+  background:var(--ink);color:#fff;
+  border-radius:16px 16px 4px 16px;
+  padding:10px 13px;font-size:13px;line-height:1.4;font-weight:500;
+}
+/* Typing indicator */
+.chat-typing{
+  align-self:flex-start;
+  background:#fff;border:1px solid var(--border);
+  border-radius:4px 16px 16px 16px;
+  padding:10px 14px;
+}
+.chat-typing-dots{display:flex;gap:4px;align-items:center}
+.chat-typing-dots span{
+  width:6px;height:6px;background:#ccc;border-radius:50%;
+  animation:bounce .9s ease-in-out infinite;
+}
+.chat-typing-dots span:nth-child(2){animation-delay:.18s}
+.chat-typing-dots span:nth-child(3){animation-delay:.36s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+
+/* Chat cards — horizontal scroll row of portrait mini-cards */
+.chat-cards-row{
+  display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;
+  scrollbar-width:none;margin-top:2px;
+}
+.chat-cards-row::-webkit-scrollbar{display:none}
+
+/* Portrait mini-card — same design language as main card */
+.chat-card{
+  flex-shrink:0;width:165px;height:240px;
+  border-radius:20px;overflow:hidden;
+  position:relative;cursor:pointer;background:#111;
+  transition:transform .22s cubic-bezier(.34,1.3,.64,1);
+  box-shadow:0 6px 20px rgba(0,0,0,.15);
+}
+.chat-card:hover{transform:translateY(-4px) scale(1.02)}
+.chat-card-img{position:absolute;inset:0}
+.chat-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.chat-card:hover .chat-card-img img{transform:scale(1.06)}
+.chat-card-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(
+    to bottom,
+    rgba(0,0,0,0)    0%,
+    rgba(0,0,0,0)    30%,
+    rgba(0,0,0,.6)   58%,
+    rgba(0,0,0,.88)  100%
+  );
+}
+.chat-card-rating{
+  position:absolute;top:9px;left:9px;z-index:2;
+  display:flex;align-items:center;gap:3px;
+  background:rgba(0,0,0,.45);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.15);
+  color:#fff;border-radius:100px;padding:3px 8px;
+  font-size:11px;font-weight:600;
+}
+.chat-card-save{
+  position:absolute;top:9px;right:9px;z-index:2;
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,.15);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.2);
+  font-size:12px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.chat-card-save:hover,.chat-card-save.saved{background:var(--lime)}
+.chat-card-body{
+  position:absolute;bottom:0;left:0;right:0;
+  z-index:2;padding:0 10px 10px;
+}
+.chat-card-name{
+  font-family:'Playfair Display',serif;
+  font-size:13px;font-weight:700;color:#fff;
+  line-height:1.2;margin-bottom:3px;
+  /* clamp to 2 lines */
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.chat-card-addr{
+  font-size:10px;color:rgba(255,255,255,.6);
+  margin-bottom:7px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.chat-card-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.chat-card-tag{
+  font-size:10px;padding:2px 7px;border-radius:100px;
+  background:rgba(255,255,255,.13);backdrop-filter:blur(4px);
+  border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.9);
+  font-weight:500;
+}
+.chat-card-reserve{
+  width:100%;padding:8px 0;border-radius:100px;border:none;
+  background:#fff;color:var(--ink);
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
+  cursor:pointer;transition:background .15s;
+}
+.chat-card-reserve:hover{background:var(--lime)}
+
+/* Suggestion chips */
+.chat-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.chat-chip{
+  border-radius:100px;border:1.5px solid var(--border);
+  padding:5px 12px;font-size:12px;cursor:pointer;
+  background:#fff;color:var(--ink-3);font-weight:500;
+  transition:all .15s;font-family:'DM Sans',sans-serif;
+}
+.chat-chip:hover{border-color:var(--ink);color:var(--ink);background:var(--ink);color:#fff}
+
+.chat-input-row{
+  padding:10px 12px;border-top:1px solid var(--border);
+  display:flex;gap:8px;background:#fff;
+}
+.chat-input{
+  flex:1;border-radius:100px;border:1.5px solid var(--border);
+  padding:9px 14px;font-size:13px;font-family:'DM Sans',sans-serif;
+  outline:none;transition:border-color .15s;background:#FAFAF8;
+}
+.chat-input:focus{border-color:var(--ink);background:#fff}
+.chat-send{
+  border-radius:100px;border:none;background:var(--ink);color:var(--lime);
+  padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;
+  transition:background .15s;font-family:'DM Sans',sans-serif;
+}
+.chat-send:hover{background:#333}
+.chat-send:disabled{opacity:.5;cursor:not-allowed}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     TOP NAVIGATION
+══════════════════════════════════════════════════════════ -->
+<nav class="topnav">
+  <div class="nav-brand">
+    <div class="nav-brand-dot"></div>
+    VibeCheck
+  </div>
+
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showPage('discover',this)">Discover</button>
+    <button class="nav-link" onclick="showPage('search',this)">Search</button>
+    <button class="nav-link" onclick="showPage('saved',this)">Saved</button>
+    <button class="nav-link" onclick="showPage('leaderboard',this)">Leaderboard</button>
+  </div>
+
+  <!-- LOCATION PICKER -->
+  <div class="location-pick" id="loc-trigger" onclick="toggleLocDropdown()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <span class="loc-name" id="loc-display">Dubai</span>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+
+    <div class="loc-dropdown" id="loc-dropdown" onclick="event.stopPropagation()">
+      <button class="loc-use-current" onclick="useCurrentLocation(event)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+        Use my current location
+      </button>
+      <div class="loc-input-wrap">
+        <svg class="loc-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="loc-input" id="loc-input" type="text" placeholder="Search city or area…" oninput="searchCity(this.value)" onclick="event.stopPropagation()">
+      </div>
+      <ul class="loc-suggestions" id="loc-suggestions"></ul>
+    </div>
+  </div>
+
+  <!-- NAV SEARCH -->
+  <div class="nav-search-wrap">
+    <svg class="nav-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="nav-search" id="nav-search" type="text" placeholder="Search restaurants, cuisines…" oninput="handleNavSearch(this.value)">
+  </div>
+
+  <div class="nav-right">
+    <div style="position:relative">
+      <button class="nav-icon-btn" title="Reservations" onclick="showPage('saved',document.querySelector('.nav-link:nth-child(3)'))">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </button>
+      <div class="notif-dot"></div>
+    </div>
+    <!-- auth area injected by Auth.updateNav() -->
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     DISCOVER PAGE
+══════════════════════════════════════════════════════════ -->
+<div class="page active" id="page-discover">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow"><span></span>Curated dining experiences</div>
+      <h1 class="hero-h1">Discover where<br>the <em>right crowd</em><br>gathers tonight</h1>
+      <p class="hero-sub">Real-time vibe scores, crowd-sourced check-ins, and AI-powered recommendations — all in one place.</p>
+      <div class="hero-search-bar">
+        <input id="hero-search" type="text" placeholder="Try “rooftop bar with live music”…" onkeydown="if(event.key==='Enter')heroSearch()">
+        <button onclick="heroSearch()">Explore →</button>
+      </div>
+      <div class="hero-tags" id="hero-tags">
+        <div class="hero-tag active" data-vibe="lively" onclick="heroVibe('lively',this)">🔥 Lively</div>
+        <div class="hero-tag" data-vibe="chill" onclick="heroVibe('chill',this)">😌 Chill</div>
+        <div class="hero-tag" data-vibe="date_night" onclick="heroVibe('date_night',this)">🌹 Date Night</div>
+        <div class="hero-tag" data-vibe="group" onclick="heroVibe('group',this)">👯 Group</div>
+        <div class="hero-tag" data-vibe="work" onclick="heroVibe('work',this)">💼 Work</div>
+        <div class="hero-tag" data-vibe="family" onclick="heroVibe('family',this)">👨‍👩‍👧 Family</div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-val">12K+</div><div class="hero-stat-label">Restaurants</div></div>
+        <div class="hero-stat" style="padding-left:24px"><div class="hero-stat-val">Real-time</div><div class="hero-stat-label">Vibe Data</div></div>
+        <div class="hero-stat" style="padding-left:24px"><div class="hero-stat-val">Zero</div><div class="hero-stat-label">Low-end Places</div></div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-right-grid" id="hero-grid">
+        <div class="hero-img"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=700&q=80" alt=""><div class="hero-img-label">Fine Dining</div></div>
+        <div class="hero-img"><img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80" alt=""><div class="hero-img-label">Rooftop Bar</div></div>
+        <div class="hero-img"><img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80" alt=""></div>
+        <div class="hero-img"><img src="https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&q=80" alt=""></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURED -->
+  <div class="section">
+    <div class="section-head">
+      <div><div class="section-label">Editor's Selection</div><div class="section-title">Unmissable This Week</div></div>
+      <span class="section-action" onclick="showPage('search',document.querySelectorAll('.nav-link')[1])">View all venues →</span>
+    </div>
+    <div class="featured-grid" id="featured-grid">
+      <div class="featured-card"><img src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=700&q=80" alt=""><div class="featured-card-info"><div class="featured-name">Skyline Reserve</div><div class="featured-sub">Rooftop · Contemporary · $$$$</div></div></div>
+      <div class="featured-card"><img src="https://images.unsplash.com/photo-1537047902294-62a40c20a6ae?w=400&q=80" alt=""><div class="featured-card-info"><div class="featured-name-sm">Saffron Table</div><div class="featured-sub">Indian · Fine Dining</div></div></div>
+      <div class="featured-card"><img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&q=80" alt=""><div class="featured-card-info"><div class="featured-name-sm">Blue Ember</div><div class="featured-sub">Grill · Steakhouse</div></div></div>
+      <div class="featured-card" style="grid-column:1/span 2"><img src="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=700&q=80" alt=""><div class="featured-card-info"><div class="featured-name">Atrium Social</div><div class="featured-sub">Cocktails · Global Cuisine · Jazz Nights</div></div></div>
+      <div class="featured-card"><img src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=400&q=80" alt=""><div class="featured-card-info"><div class="featured-name-sm">Casa Verde</div><div class="featured-sub">Brunch · Garden Seating</div></div></div>
+    </div>
+  </div>
+
+  <!-- RECOMMENDATIONS -->
+  <div class="section" style="padding-top:0">
+    <div class="section-head">
+      <div><div class="section-label">AI-Powered</div><div class="section-title" id="reco-title">Lively Spots Near You</div></div>
+      <span class="section-action" onclick="showPage('search',document.querySelectorAll('.nav-link')[1])">Browse all →</span>
+    </div>
+    <div id="reco-cards" class="cards-row">
+      <div class="loading-block"><div class="spinner"></div><span>Curating recommendations…</span></div>
+    </div>
+  </div>
+
+  <!-- NEARBY -->
+  <div class="section" style="padding-top:0">
+    <div class="section-head">
+      <div><div class="section-label">Around You</div><div class="section-title">Nearby Right Now</div></div>
+      <span class="section-action" onclick="loadNearby()">Refresh ↺</span>
+    </div>
+    <div id="nearby-cards" class="cards-row">
+      <div class="loading-block"><div class="spinner"></div><span>Locating you…</span></div>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD STRIP -->
+  <div class="section" style="padding-top:0;padding-bottom:0">
+    <div class="section-head">
+      <div><div class="section-label">Community</div><div class="section-title">Top Vibe Explorers</div></div>
+      <span class="section-action" onclick="showPage('leaderboard',document.querySelectorAll('.nav-link')[3])">Full leaderboard →</span>
+    </div>
+    <div id="lb-strip" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:20px;scrollbar-width:none"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SEARCH PAGE
+══════════════════════════════════════════════════════════ -->
+<div class="page" id="page-search">
+  <div class="search-page-header">
+    <h1 class="search-page-h1">Find Your Scene</h1>
+    <div class="search-full-bar">
+      <div class="search-full-wrap">
+        <svg class="search-full-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-full-input" id="search-input" type="text" placeholder="Describe the vibe — “chill wine bar with jazz”, “family brunch by the beach”…" oninput="handleSearchInput(this.value)" onkeydown="if(event.key==='Enter')runSearch(this.value)">
+      </div>
+    </div>
+    <div class="type-pills">
+      <button class="type-pill active" data-type="restaurant" onclick="setType('restaurant',this)">🍽 Restaurants</button>
+      <button class="type-pill" data-type="cafe" onclick="setType('cafe',this)">☕ Cafes</button>
+      <button class="type-pill" data-type="bar" onclick="setType('bar',this)">🍸 Bars</button>
+      <button class="type-pill" data-type="bakery" onclick="setType('bakery',this)">🥐 Bakeries</button>
+    </div>
+  </div>
+  <div class="search-results-area">
+    <div class="results-count" id="results-count"></div>
+    <div class="cards-grid" id="search-grid">
+      <div class="empty" style="grid-column:1/-1">
+        <div class="empty-emoji">🔍</div>
+        <div class="empty-h">Search for a venue</div>
+        <div class="empty-p">Type a cuisine, dish, or restaurant name to discover premium dining experiences near you.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SAVED PAGE
+══════════════════════════════════════════════════════════ -->
+<div class="page" id="page-saved">
+  <div style="background:var(--ink);padding:48px 48px 36px">
+    <div class="hero-eyebrow" style="color:var(--lime)"><span style="background:var(--lime)"></span>Your Collection</div>
+    <h1 class="hero-h1" style="font-size:40px;margin-bottom:8px">Saved Places</h1>
+    <p style="color:#888;font-size:15px">Your personal curation of <strong id="saved-count-hero" style="color:var(--lime)">0</strong> premium venues.</p>
+  </div>
+  <div class="section">
+    <div id="saved-grid" class="cards-grid">
+      <div class="empty">
+        <div class="empty-emoji">🔖</div>
+        <div class="empty-h">Your collection is empty</div>
+        <div class="empty-p">Save restaurants by clicking the bookmark icon on any venue card.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     LEADERBOARD PAGE
+══════════════════════════════════════════════════════════ -->
+<div class="page" id="page-leaderboard">
+  <div class="two-col">
+    <div>
+      <div class="section-label" style="margin-bottom:6px">Community Rankings</div>
+      <div class="section-title" style="margin-bottom:32px;font-size:36px">Vibe Explorers</div>
+      <div class="lb-podium" id="lb-podium"></div>
+      <div id="lb-full-list"></div>
+    </div>
+    <div>
+      <div class="sidebar-panel" style="margin-bottom:20px">
+        <div class="panel-title">Your Stats</div>
+        <div class="d-stats" style="margin-bottom:0">
+          <div class="d-stat"><div class="d-stat-val">9th</div><div class="d-stat-label">Your Rank</div></div>
+          <div class="d-stat"><div class="d-stat-val">1,240</div><div class="d-stat-label">Points</div></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:14px">
+          <div style="flex:1;background:var(--bg);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700">231</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Places Visited</div>
+          </div>
+          <div style="flex:1;background:var(--bg);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--orange,#FF6B35)">🔥 3</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Week Streak</div>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-panel">
+        <div class="panel-title">How Points Work</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px"><span style="font-size:18px">✓</span><span>Vibe check-in: <strong>+10 pts</strong></span></div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px"><span style="font-size:18px">📸</span><span>Photo upload: <strong>+25 pts</strong></span></div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px"><span style="font-size:18px">🔥</span><span>Weekly streak: <strong>×2 bonus</strong></span></div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px"><span style="font-size:18px">🏆</span><span>New discovery: <strong>+50 pts</strong></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     DETAIL MODAL
+══════════════════════════════════════════════════════════ -->
+<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+  <div class="drawer" id="drawer">
+
+    <div class="drawer-hero" id="drawer-hero">
+      <!-- images filled by JS -->
+      <div class="drawer-hero-overlay"></div>
+      <button class="drawer-close" onclick="closeDrawer()">←</button>
+      <div class="drawer-actions">
+        <button class="drawer-action-btn" id="drawer-save-btn" onclick="toggleDrawerSave()">🏷</button>
+        <button class="drawer-action-btn" onclick="sharePlace()">↗</button>
+      </div>
+      <div class="drawer-hero-title">
+        <div class="drawer-place-name" id="dp-name"></div>
+        <div class="drawer-place-addr"><span>📍</span><span id="dp-addr">Loading…</span></div>
+      </div>
+    </div>
+
+    <div class="drawer-body">
+      <!-- MAIN -->
+      <div class="drawer-main" id="drawer-main">
+        <div class="loading-block"><div class="spinner"></div><span>Loading details…</span></div>
+      </div>
+      <!-- SIDE -->
+      <div class="drawer-side" id="drawer-side">
+        <div class="loading-block" style="padding:16px"><div class="spinner" style="width:20px;height:20px;border-width:2px"></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     CONFIRM MODAL
+══════════════════════════════════════════════════════════ -->
+<div class="confirm-wrap" id="confirm-wrap">
+  <div class="confirm-box">
+    <div class="confirm-icon">🎉</div>
+    <div class="confirm-h">Table Reserved!</div>
+    <div class="confirm-p">Your reservation is confirmed. We'll remind you 2 hours before.</div>
+    <div class="confirm-rows" id="confirm-rows"></div>
+    <button class="confirm-done" onclick="closeConfirm()">Done</button>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toasts" id="toasts"></div>
+
+<!-- ══════════════════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-brand">VibeCheck</div>
+  <div>Real-time restaurant discovery · Powered by live crowd data</div>
+  <div>© 2026</div>
+</footer>
+
+<!-- AI CHAT WIDGET -->
+<button class="chat-toggle" id="chat-toggle" title="Ask VibeCheck AI">&#x2736;</button>
+<div class="chat-panel hide" id="chat-panel">
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div class="chat-avatar">V</div>
+      <div>
+        <div class="chat-title">VibeCheck Concierge</div>
+        <div class="chat-subtitle">AI · Powered by Claude</div>
+      </div>
+    </div>
+    <button class="chat-close-btn" onclick="toggleChat()">×</button>
+  </div>
+  <div class="chat-body" id="chat-body">
+    <div class="chat-bubble-ai">
+      Tell me the <strong>area</strong>, <strong>cuisine</strong>, and <strong>vibe</strong> — I’ll surface real places that match.<br><br>
+      <em style="color:var(--muted);font-size:12px">"Rooftop bar with live music" · "Quiet Italian for a date" · "Lively brunch spot"</em>
+    </div>
+  </div>
+  <div class="chat-input-row">
+    <input id="chat-input" class="chat-input" type="text" placeholder="Describe the vibe you want…"
+           onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()" id="chat-send-btn">↑</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════════ -->
+<script>
+/* ── STATE ──────────────────────────────────────────────── */
+const S = {
+  lat: 25.2048, lng: 55.2708,
+  cityName: 'Dubai',
+  vibe: 'lively',
+  type: 'restaurant',
+  savedIds: new Set(JSON.parse(localStorage.getItem('vc_ids')||'[]')),
+  savedPlaces: JSON.parse(localStorage.getItem('vc_places')||'[]'),
+  current: null, // current place in drawer
+  selDate: null, selTime: null, guests: 2,
+  vcSel: {lively:false, fun:false, good:false},
+  searchTimer: null, cityTimer: null,
+  locOpen: false,
+};
+
+/* ── PHOTOS (fallback when API doesn't send real photos) ─ */
+const IMGS = [
+  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=700&q=80',
+  'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=700&q=80',
+  'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=700&q=80',
+  'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=700&q=80',
+  'https://images.unsplash.com/photo-1537047902294-62a40c20a6ae?w=700&q=80',
+  'https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=700&q=80',
+  'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=700&q=80',
+  'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=700&q=80',
+  'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=700&q=80',
+  'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=700&q=80',
+  'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=700&q=80',
+  'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=700&q=80',
+];
+function photo(id) {
+  let h=0; for(let c of String(id)) h=(h*31+c.charCodeAt(0))&0xffffff;
+  return IMGS[Math.abs(h)%IMGS.length];
+}
+const EXTRA_IMGS = [
+  'https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?w=400&q=80',
+  'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80',
+  'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&q=80',
+];
+
+/* ── INIT ───────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  Auth.updateNav();
+  getUserLocation();
+  buildLeaderboard();
+  buildLbStrip();
+  updateSavedUI();
+
+  // Chat toggle
+  document.getElementById('chat-toggle').addEventListener('click', function(e) {
+    e.stopPropagation();
+    toggleChat();
+  });
+
+  // Close location dropdown and profile menu on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#loc-trigger')) closeLoc();
+    if (!e.target.closest('#nav-auth-area')) closeProfileMenu();
+  });
+});
+
+/* ── PAGE SWITCHING ─────────────────────────────────────── */
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (name === 'saved') updateSavedUI();
+  window.scrollTo(0, 0);
+}
+
+/* ── LOCATION ───────────────────────────────────────────── */
+function toggleLocDropdown() {
+  S.locOpen = !S.locOpen;
+  document.getElementById('loc-dropdown').classList.toggle('open', S.locOpen);
+  if (S.locOpen) { setTimeout(() => document.getElementById('loc-input').focus(), 50); }
+}
+function closeLoc() {
+  S.locOpen = false;
+  document.getElementById('loc-dropdown').classList.remove('open');
+}
+
+function useCurrentLocation(e) {
+  e.stopPropagation();
+  if (!navigator.geolocation) { toast('Geolocation not supported', true); return; }
+  const ul = document.querySelector('.loc-use-current');
+  ul.textContent = '⏳ Getting location…';
+  navigator.geolocation.getCurrentPosition(pos => {
+    S.lat = pos.coords.latitude; S.lng = pos.coords.longitude;
+    reverseGeocode(S.lat, S.lng);
+    ul.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg> Use my current location`;
+    closeLoc();
+    refreshAll();
+  }, () => {
+    ul.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg> Use my current location`;
+    toast('Could not get location', true);
+  });
+}
+
+async function reverseGeocode(lat, lng) {
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`, {headers:{'Accept-Language':'en'}});
+    const d = await r.json();
+    const city = d.address.city || d.address.town || d.address.village || d.address.county || 'My Location';
+    S.cityName = city;
+    document.getElementById('loc-display').textContent = city;
+  } catch {}
+}
+
+let cityAbort = null;
+async function searchCity(q) {
+  const ul = document.getElementById('loc-suggestions');
+  clearTimeout(S.cityTimer);
+  if (q.length < 2) { ul.innerHTML = ''; return; }
+  S.cityTimer = setTimeout(async () => {
+    ul.innerHTML = '<li class="loc-suggestion"><span class="city-name">Searching…</span></li>';
+    try {
+      if (cityAbort) cityAbort.abort();
+      cityAbort = new AbortController();
+      const r = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6&addressdetails=1`,
+        {signal:cityAbort.signal, headers:{'Accept-Language':'en'}}
+      );
+      const data = await r.json();
+      ul.innerHTML = '';
+      if (!data.length) { ul.innerHTML = '<li class="loc-suggestion"><span class="city-name">No results</span></li>'; return; }
+      data.forEach(item => {
+        const city = item.address.city || item.address.town || item.address.village || item.display_name.split(',')[0];
+        const country = item.address.country || '';
+        const li = document.createElement('li');
+        li.className = 'loc-suggestion';
+        li.innerHTML = `<span style="font-size:16px">📍</span><div><div class="city-name">${city}</div><div class="country-name">${country}</div></div>`;
+        // Stop click from bubbling to #loc-trigger (which would re-toggle dropdown).
+        li.onclick = (e) => {
+          e.stopPropagation();
+          S.lat = parseFloat(item.lat); S.lng = parseFloat(item.lon);
+          S.cityName = city;
+          document.getElementById('loc-display').textContent = city;
+          document.getElementById('loc-input').value = '';
+          ul.innerHTML = '';
+          closeLoc();
+          refreshAll();
+          toast(`Showing results for ${city}`, false, '📍');
+        };
+        ul.appendChild(li);
+      });
+    } catch (err) { if (err.name !== 'AbortError') ul.innerHTML = '<li class="loc-suggestion"><span class="city-name">Error</span></li>'; }
+  }, 300);
+}
+
+function getUserLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      S.lat = pos.coords.latitude; S.lng = pos.coords.longitude;
+      reverseGeocode(S.lat, S.lng);
+      refreshAll();
+    }, () => { loadRecommendations(); loadNearby(); });
+  } else { loadRecommendations(); loadNearby(); }
+}
+
+function refreshAll() {
+  loadRecommendations();
+  loadNearby();
+}
+
+/* ── HERO ACTIONS ───────────────────────────────────────── */
+function heroSearch() {
+  const q = document.getElementById('hero-search').value.trim();
+  if (!q) return;
+  showPage('search', document.querySelectorAll('.nav-link')[1]);
+  document.getElementById('search-input').value = q;
+  runSearch(q);
+}
+
+function heroVibe(vibe, el) {
+  document.querySelectorAll('.hero-tag').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  S.vibe = vibe;
+  const vibeLabels = {lively:'Lively Spots',chill:'Chill Spaces',date_night:'Date Night Picks',group:'Group Venues',work:'Work-Friendly',family:'Family-Friendly'};
+  document.getElementById('reco-title').textContent = `${vibeLabels[vibe]} Near You`;
+  loadRecommendations();
+}
+
+function handleNavSearch(q) {
+  clearTimeout(S.searchTimer);
+  if (!q.trim()) return;
+  S.searchTimer = setTimeout(() => {
+    showPage('search', document.querySelectorAll('.nav-link')[1]);
+    document.getElementById('search-input').value = q;
+    runSearch(q);
+  }, 500);
+}
+
+/* ── RECOMMENDATIONS ─────────────────────────────────────── */
+async function loadRecommendations() {
+  const c = document.getElementById('reco-cards');
+  c.innerHTML = '<div class="loading-block"><div class="spinner"></div><span>Curating for you…</span></div>';
+  try {
+    const d = await apiFetch(`/places/recommend?vibe=${S.vibe}&lat=${S.lat}&lng=${S.lng}&limit=10`);
+    c.innerHTML = '';
+    if (d.recommendations?.length) {
+      d.recommendations.forEach((rec,i) => c.appendChild(buildCard(rec.place, {rec, idx:i})));
+    } else {
+      c.innerHTML = emptyHTML('No recommendations', 'Try a different vibe or location.');
+    }
+  } catch { c.innerHTML = emptyHTML('Unavailable', 'Check API keys are configured.'); }
+}
+
+/* ── NEARBY ──────────────────────────────────────────────── */
+async function loadNearby() {
+  const c = document.getElementById('nearby-cards');
+  c.innerHTML = '<div class="loading-block"><div class="spinner"></div></div>';
+  try {
+    const d = await apiFetch(`/places/nearby?lat=${S.lat}&lng=${S.lng}&radius=2500&type=restaurant&limit=12`);
+    c.innerHTML = '';
+    if (d.places?.length) d.places.forEach((p,i) => c.appendChild(buildCard(p, {idx:i})));
+    else c.innerHTML = emptyHTML('Nothing found nearby', '');
+  } catch { c.innerHTML = emptyHTML('Unavailable', 'API may not be configured.'); }
+}
+
+/* ── CARD BUILDER ────────────────────────────────────────── */
+function buildCard(p, {rec, idx=0} = {}) {
+  const img = p.photo_url || photo(p.id);
+  const saved = S.savedIds.has(p.id);
+  const score = rec ? Math.round(rec.score*100) : null;
+  const price = p.types?.includes('cafe') ? '$$' : p.types?.includes('fine_dining') ? '$$$$' : '$$$';
+  const tags = rec?.vibe_tags?.slice(0,2) || (p.types?.slice(0,2).map(t => t.replace(/_/g,' ')) || []);
+
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.innerHTML = `
+    <div class="card-img">
+      <img src="${img}" alt="${esc(p.name)}" loading="lazy">
+    </div>
+    <div class="card-img-overlay"></div>
+
+    <div class="card-rating-badge">
+      <svg class="star-svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      ${p.rating || '—'}
+    </div>
+    <button class="card-save ${saved?'saved':''}" onclick="toggleSave(event,'${esc(p.id)}',this)">${saved?'🔖':'🏷'}</button>
+
+    <div class="card-dots">
+      <div class="card-dot on"></div>
+      <div class="card-dot"></div>
+      <div class="card-dot"></div>
+    </div>
+
+    <div class="card-body">
+      <div class="card-title-row">
+        <div class="card-name">${esc(p.name)}</div>
+        <div class="card-price-pill">${price}</div>
+      </div>
+      <div class="card-addr">📍 ${esc(p.address||'Location unavailable')}</div>
+      ${tags.length ? `<div class="card-tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
+      ${score !== null ? `<div class="match-bar"><div class="match-track"><div class="match-fill" style="width:${score}%"></div></div><span class="match-label">${score}% match</span></div>` : ''}
+      <button class="card-reserve-btn" onclick="quickReserve(event, '${esc(p.id)}', '${esc(p.name)}', '${img}')">Reserve</button>
+    </div>`;
+  el.addEventListener('click', e => {
+    if (!e.target.closest('.card-save') && !e.target.closest('.card-reserve-btn'))
+      openDrawer(p, img);
+  });
+  return el;
+}
+
+/* ── SEARCH ──────────────────────────────────────────────── */
+function handleSearchInput(q) {
+  clearTimeout(S.searchTimer);
+  if (q.length < 2) return;
+  S.searchTimer = setTimeout(() => runSearch(q), 450);
+}
+
+async function runSearch(q) {
+  if (!q?.trim()) return;
+  const grid = document.getElementById('search-grid');
+  const cnt = document.getElementById('results-count');
+  console.log('[AI SEARCH] runSearch called with query:', q, 'lat/lng:', S.lat, S.lng);
+  grid.innerHTML = '<div class="loading-block" style="grid-column:1/-1"><div class="spinner"></div><span>AI is verifying the best matches…</span></div>';
+  cnt.textContent = '';
+  try {
+    console.log('[AI SEARCH] about to call /places/ai-search');
+    const d = await apiFetch(`/places/ai-search?q=${encodeURIComponent(q)}&lat=${S.lat}&lng=${S.lng}&limit=20`);
+    console.log('[AI SEARCH] response received:', d);
+    grid.innerHTML = '';
+    if (d.places?.length) {
+      cnt.textContent = `${d.places.length} results for "${q}"`;
+      d.places.forEach((p,i) => grid.appendChild(buildCard(p,{idx:i})));
+    } else {
+      cnt.textContent = ''; grid.innerHTML = emptyHTML('No results', 'Try a different search or location.');
+    }
+  } catch { grid.innerHTML = emptyHTML('Search failed', 'Try again in a moment.'); }
+}
+
+function setType(type, el) {
+  document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active'); S.type = type;
+  const q = document.getElementById('search-input').value.trim();
+  if (q.length >= 2) runSearch(q); else loadByType(type);
+}
+
+async function loadByType(type) {
+  const grid = document.getElementById('search-grid');
+  grid.innerHTML = '<div class="loading-block" style="grid-column:1/-1"><div class="spinner"></div></div>';
+  try {
+    const d = await apiFetch(`/places/nearby?lat=${S.lat}&lng=${S.lng}&radius=3000&type=${type}&limit=20`);
+    grid.innerHTML = '';
+    (d.places||[]).forEach((p,i) => grid.appendChild(buildCard(p,{idx:i})));
+    document.getElementById('results-count').textContent = `${d.places?.length||0} ${type}s near ${S.cityName}`;
+  } catch { grid.innerHTML = emptyHTML('Failed',''); }
+}
+
+/* ── SAVE ───────────────────────────────────────────────── */
+function toggleSave(event, placeId, btn) {
+  event.stopPropagation();
+  if (S.savedIds.has(placeId)) {
+    S.savedIds.delete(placeId);
+    S.savedPlaces = S.savedPlaces.filter(p => p.id !== placeId);
+    btn.textContent = '🏷'; btn.classList.remove('saved');
+    toast('Removed from saved');
+  } else {
+    S.savedIds.add(placeId);
+    const card = btn.closest('.card');
+    const name = card?.querySelector('.card-name')?.textContent || '';
+    const addr = card?.querySelector('.card-addr')?.textContent?.replace('📍 ','') || '';
+    const img  = card?.querySelector('img')?.src || '';
+    const rating = card?.querySelector('.card-rating')?.textContent?.trim() || '';
+    S.savedPlaces.push({id:placeId, name, address:addr, img, rating});
+    btn.textContent = '🔖'; btn.classList.add('saved');
+    toast('Saved to collection', false, '🔖');
+  }
+  persist();
+}
+
+function toggleDrawerSave() {
+  if (!S.current) return;
+  const id = S.current.id;
+  const btn = document.getElementById('drawer-save-btn');
+  if (S.savedIds.has(id)) {
+    S.savedIds.delete(id);
+    S.savedPlaces = S.savedPlaces.filter(p => p.id !== id);
+    btn.textContent = '🏷'; toast('Removed from saved');
+  } else {
+    S.savedIds.add(id);
+    S.savedPlaces.push({id, name:S.current.name, address:S.current.addr, img:S.current.img, rating:S.current.rating});
+    btn.textContent = '🔖'; toast('Saved!', false, '🔖');
+  }
+  persist();
+}
+
+function persist() {
+  localStorage.setItem('vc_ids', JSON.stringify([...S.savedIds]));
+  localStorage.setItem('vc_places', JSON.stringify(S.savedPlaces));
+}
+
+function updateSavedUI() {
+  const grid = document.getElementById('saved-grid');
+  document.getElementById('saved-count-hero').textContent = S.savedIds.size;
+  if (!S.savedPlaces.length) {
+    grid.innerHTML = '<div class="empty"><div class="empty-emoji">🔖</div><div class="empty-h">Nothing saved yet</div><div class="empty-p">Bookmark restaurants from the Discover or Search pages.</div></div>';
+    return;
+  }
+  grid.innerHTML = '';
+  S.savedPlaces.forEach(p => {
+    const imgSrc = p.img || photo(p.id);
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.innerHTML = `
+      <div class="card-img"><img src="${imgSrc}" alt="${esc(p.name)}" loading="lazy"></div>
+      <div class="card-img-overlay"></div>
+      <div class="card-rating-badge">
+        <svg class="star-svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        ${p.rating||'—'}
+      </div>
+      <button class="card-save saved" onclick="toggleSave(event,'${esc(p.id)}',this)">🔖</button>
+      <div class="card-dots"><div class="card-dot on"></div><div class="card-dot"></div></div>
+      <div class="card-body">
+        <div class="card-title-row">
+          <div class="card-name">${esc(p.name)}</div>
+          <div class="card-price-pill">$$$</div>
+        </div>
+        <div class="card-addr">📍 ${esc(p.address||'—')}</div>
+        <button class="card-reserve-btn" onclick="quickReserve(event,'${esc(p.id)}','${esc(p.name)}','${imgSrc}')">Reserve</button>
+      </div>`;
+    el.addEventListener('click', ev => { if (!ev.target.closest('.card-save') && !ev.target.closest('.card-reserve-btn')) openDrawer({id:p.id, name:p.name, address:p.address, rating:p.rating}, p.img); });
+    grid.appendChild(el);
+  });
+}
+
+/* ── DETAIL DRAWER ──────────────────────────────────────── */
+async function openDrawer(place, img) {
+  // Store and reset
+  S.current = { id: place.id, name: place.name, addr: place.address||'', img, rating: place.rating };
+  S.vcSel = {lively:false, fun:false, good:false};
+  S.selTime = null; S.selDate = null; S.guests = 2;
+
+  // Show overlay immediately with hero + skeleton
+  const hero = document.getElementById('drawer-hero');
+  hero.innerHTML = `
+    <div class="drawer-hero-img" style="grid-row:1/span 2"><img src="${img}" alt=""></div>
+    <div class="drawer-hero-img"><img src="${EXTRA_IMGS[0]}" alt=""></div>
+    <div class="drawer-hero-img"><img src="${EXTRA_IMGS[1]}" alt=""></div>
+    <div class="drawer-hero-overlay"></div>
+    <button class="drawer-close" onclick="closeDrawer()">←</button>
+    <div class="drawer-actions">
+      <button class="drawer-action-btn" id="drawer-save-btn" onclick="toggleDrawerSave()">${S.savedIds.has(place.id)?'🔖':'🏷'}</button>
+      <button class="drawer-action-btn" onclick="sharePlace()">↗</button>
+    </div>
+    <div class="drawer-hero-title">
+      <div class="drawer-place-name">${esc(place.name)}</div>
+      <div class="drawer-place-addr"><span>📍</span><span id="dp-addr">Loading address…</span></div>
+    </div>`;
+
+  // Skeleton for main + side
+  document.getElementById('drawer-main').innerHTML = skeletonMain();
+  document.getElementById('drawer-side').innerHTML = skeletonSide();
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Fire BOTH requests in parallel — show detail immediately when ready, vibe when ready
+  const detailPromise = apiFetch(`/places/${encodeURIComponent(place.id)}`).catch(() => null);
+  const vibePromise   = apiFetch(`/places/${encodeURIComponent(place.id)}/vibe?place_name=${encodeURIComponent(place.name)}`).catch(() => null);
+
+  // Render detail as soon as it arrives (fast)
+  detailPromise.then(detail => {
+    if (!detail) return;
+    const addr = detail.address || place.address || 'Address unavailable';
+    S.current.addr = addr;
+    const addrEl = document.getElementById('dp-addr');
+    if (addrEl) addrEl.textContent = addr;
+    renderDrawerMain(detail, null); // render main with detail, vibe = null initially
+  });
+
+  // When vibe arrives, update the vibe sections only
+  const [detail, vibe] = await Promise.all([detailPromise, vibePromise]);
+  renderDrawerMain(detail, vibe);
+  renderDrawerSide(vibe, detail);
+}
+
+function skeletonMain() {
+  return `<div>
+    <div style="display:flex;gap:12px;margin-bottom:24px">
+      ${[1,2,3,4].map(()=>`<div style="flex:1;height:70px;border-radius:12px" class="skel"></div>`).join('')}
+    </div>
+    <div style="height:14px;border-radius:4px;margin-bottom:10px;width:30%" class="skel"></div>
+    <div style="height:60px;border-radius:8px;margin-bottom:20px" class="skel"></div>
+    <div style="height:14px;border-radius:4px;margin-bottom:10px;width:25%" class="skel"></div>
+    <div style="height:80px;border-radius:8px;margin-bottom:20px" class="skel"></div>
+    <div style="height:14px;border-radius:4px;margin-bottom:10px;width:20%" class="skel"></div>
+    ${[1,2,3].map(()=>`<div style="height:60px;border-radius:8px;margin-bottom:8px" class="skel"></div>`).join('')}
+  </div>`;
+}
+function skeletonSide() {
+  return `<div style="height:320px;border-radius:12px;margin-bottom:16px" class="skel"></div>
+    <div style="height:140px;border-radius:12px" class="skel"></div>`;
+}
+
+function renderDrawerMain(detail, vibe) {
+  if (!detail) return;
+  const rating = detail.rating || vibe?.overall_score || 0;
+  const liveData = vibe?.live_busyness;
+  const bt = vibe?.besttime_info;
+  const ur = vibe?.user_reports;
+  const reviews = vibe?.recent_highlights_with_dates || [];
+
+  let h = '';
+
+  // Stats
+  h += `<div class="d-stats">
+    <div class="d-stat"><div class="d-stat-val">${rating ? rating.toFixed(1) : '—'}</div><div class="d-stat-label">Rating</div></div>
+    <div class="d-stat"><div class="d-stat-val">${detail.review_count || '—'}</div><div class="d-stat-label">Reviews</div></div>
+    <div class="d-stat"><div class="d-stat-val">${detail.price_level || '$$'}</div><div class="d-stat-label">Price</div></div>
+    <div class="d-stat"><div class="d-stat-val">${vibe?.is_lively === true ? '🔥' : vibe?.is_lively === false ? '😌' : '—'}</div><div class="d-stat-label">Vibe</div></div>
+  </div>`;
+
+  // Live
+  if (liveData) {
+    const pct = Math.round(liveData.live_busyness);
+    h += `<div class="live-strip">
+      <div class="live-dot"></div>
+      <div class="live-status"><strong style="text-transform:capitalize">${liveData.status.replace('_',' ')}</strong> right now · ${liveData.is_lively ? 'Perfect time to visit!' : 'Nice and quiet'}</div>
+      <div class="live-pct">${pct}%</div>
+    </div>`;
+  }
+
+  // Vibe summary
+  if (vibe?.summary) {
+    h += `<div class="d-section"><div class="d-section-title">Vibe Summary</div>
+      <p style="font-size:14px;line-height:1.65;color:var(--ink-3)">${vibe.summary}</p></div>`;
+  }
+
+  // Hourly chart
+  if (bt?.day_raw?.length) {
+    const now = new Date().getHours();
+    const raw = bt.day_raw;
+    const max = Math.max(...raw, 1);
+    const labels = [];
+    h += `<div class="d-section"><div class="d-section-title">Busyness Forecast</div>
+      <div class="hour-chart">`;
+    raw.forEach((v,i) => {
+      const hr = (i+6)%24;
+      const ht = Math.max(4, Math.round((v/max)*60));
+      h += `<div class="hbar ${hr===now?'now':hr<now?'past':''}" style="height:${ht}px"></div>`;
+      labels.push(i%4===0 ? (hr===0?'12a':hr<12?hr+'a':hr===12?'12p':(hr-12)+'p') : '');
+    });
+    h += `</div><div class="hour-labels">${labels.map(l=>`<div class="hlbl">${l}</div>`).join('')}</div></div>`;
+  }
+
+  // Vibe tags from user reports
+  if (ur?.count > 0) {
+    const tags = [];
+    if (ur.is_lively) tags.push({icon:'🔥',label:'Lively'});
+    if (ur.is_fun)    tags.push({icon:'😄',label:'Fun'});
+    if (ur.is_good)   tags.push({icon:'👍',label:'Good'});
+    if (tags.length) {
+      h += `<div class="vibe-tags">${tags.map(t=>`<div class="vibe-tag-big">${t.icon} ${t.label}</div>`).join('')}</div>`;
+    }
+  }
+
+  // Opening hours
+  if (detail.opening_hours?.length) {
+    const today = new Date().toLocaleDateString('en-US',{weekday:'long'});
+    const todayH = detail.opening_hours.find(h => h.includes(today));
+    h += `<div class="d-section"><div class="d-section-title">Hours</div>
+      <div style="font-size:14px;padding:12px 14px;background:var(--card);border-radius:10px;display:flex;align-items:center;gap:8px">
+        <span>🕐</span><span>${todayH || detail.opening_hours[0]}</span>
+      </div></div>`;
+  }
+
+  // Contact
+  if (detail.phone || detail.website) {
+    h += `<div class="d-section"><div class="d-section-title">Contact</div><div style="display:flex;gap:8px;flex-wrap:wrap">`;
+    if (detail.phone) h += `<a href="tel:${detail.phone}" style="padding:8px 14px;background:var(--card);border-radius:8px;font-size:13px;font-weight:500;border:1.5px solid var(--border)">📞 ${detail.phone}</a>`;
+    if (detail.website) h += `<a href="${detail.website}" target="_blank" rel="noopener" style="padding:8px 14px;background:var(--card);border-radius:8px;font-size:13px;font-weight:500;border:1.5px solid var(--border)">🌐 Website</a>`;
+    h += `</div></div>`;
+  }
+
+  // Reviews
+  if (reviews.length) {
+    h += `<div class="d-section"><div class="d-section-title">Recent Reviews</div>`;
+    reviews.slice(0,4).forEach((r,i) => {
+      const text = typeof r === 'string' ? r : r.text;
+      const when = typeof r === 'object' ? r.when : null;
+      h += `<div class="review-card">
+        <div class="rev-header">
+          <div class="rev-av">${['M','A','J','S','R'][i]}</div>
+          <div class="rev-name">Guest</div>
+          ${when ? `<div class="rev-when">${when}</div>` : ''}
+        </div>
+        <div class="rev-text">${esc(text)}</div>
+      </div>`;
+    });
+    h += `</div>`;
+  }
+
+  // Vibe check-in
+  h += `<div class="d-section" style="border-top:1px solid var(--border);padding-top:20px">
+    <div class="d-section-title">📡 How's the vibe right now?</div>
+    <div class="vc-btns">
+      <button class="vc-btn" id="vc-lively" onclick="toggleVC('lively')"><div class="vc-icon">🔥</div>Lively</button>
+      <button class="vc-btn" id="vc-fun"    onclick="toggleVC('fun')"><div class="vc-icon">😄</div>Fun</button>
+      <button class="vc-btn" id="vc-good"   onclick="toggleVC('good')"><div class="vc-icon">👍</div>Good</button>
+    </div>
+    <button class="vc-submit" id="vc-submit-btn" onclick="submitVibe()">Submit Live Report</button>
+  </div>`;
+
+  document.getElementById('drawer-main').innerHTML = h;
+}
+
+function renderDrawerSide(vibe, detail) {
+  const side = document.getElementById('drawer-side');
+  side.innerHTML = `
+    ${buildReservationPanel()}
+    <div class="d-section-title" style="margin-bottom:12px">About</div>
+    <p style="font-size:13px;color:var(--ink-3);line-height:1.6">
+      ${detail?.types?.length ? `<strong>Type:</strong> ${detail.types.slice(0,3).join(', ')}<br>` : ''}
+      ${detail?.address ? `<strong>Address:</strong> ${detail.address}` : ''}
+    </p>`;
+  initResPanel();
+}
+
+/* ── RESERVATION ─────────────────────────────────────────── */
+function buildReservationPanel() {
+  const today = new Date();
+  let chips = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today); d.setDate(today.getDate()+i);
+    const day = d.toLocaleDateString('en-US',{weekday:'short'});
+    const num = d.getDate();
+    const iso = d.toISOString().split('T')[0];
+    chips += `<div class="d-chip ${i===0?'active':''}" data-date="${iso}" onclick="pickDate(this)">
+      <div class="d-chip-day">${i===0?'Today':day}</div>
+      <div class="d-chip-num">${num}</div>
+    </div>`;
+  }
+  const times = ['12:00','12:30','13:00','13:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30'];
+  const unavail = new Set([2,5,9]);
+  const slots = times.map((t,i) => `<div class="t-slot ${unavail.has(i)?'na':''}" data-time="${t}" onclick="${unavail.has(i)?'':' pickTime(this)'}">${t}</div>`).join('');
+  return `<div class="reserve-panel">
+    <div class="res-title"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Reserve a Table</div>
+    <div class="date-strip">${chips}</div>
+    <div class="time-grid">${slots}</div>
+    <div class="guests-row">
+      <div class="guests-lbl">👥 Guests</div>
+      <div class="g-ctrl">
+        <button class="g-btn" onclick="adjGuests(-1)">−</button>
+        <div class="g-num" id="g-num">2</div>
+        <button class="g-btn" onclick="adjGuests(1)">+</button>
+      </div>
+    </div>
+    <button class="res-btn" onclick="makeReservation()">Confirm Reservation</button>
+  </div>`;
+}
+function initResPanel() {
+  S.selDate = new Date().toISOString().split('T')[0];
+  S.selTime = null; S.guests = 2;
+}
+function pickDate(el) {
+  document.querySelectorAll('.d-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active'); S.selDate = el.dataset.date;
+}
+function pickTime(el) {
+  if (el.classList.contains('na')) return;
+  document.querySelectorAll('.t-slot').forEach(t => t.classList.remove('active'));
+  el.classList.add('active'); S.selTime = el.dataset.time;
+}
+function adjGuests(d) {
+  S.guests = Math.max(1, Math.min(10, S.guests + d));
+  const el = document.getElementById('g-num'); if (el) el.textContent = S.guests;
+}
+function makeReservation() {
+  if (!S.selTime) { toast('Please select a time slot', true); return; }
+  const res = { place: S.current?.name, date: S.selDate, time: S.selTime, guests: S.guests };
+  closeDrawer();
+  const rows = document.getElementById('confirm-rows');
+  rows.innerHTML = `
+    <div class="confirm-row"><span class="confirm-row-lbl">Restaurant</span><span class="confirm-row-val">${esc(res.place||'')}</span></div>
+    <div class="confirm-row"><span class="confirm-row-lbl">Date</span><span class="confirm-row-val">${new Date(res.date+'T12:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</span></div>
+    <div class="confirm-row"><span class="confirm-row-lbl">Time</span><span class="confirm-row-val">${res.time}</span></div>
+    <div class="confirm-row"><span class="confirm-row-lbl">Guests</span><span class="confirm-row-val">${res.guests} people</span></div>`;
+  document.getElementById('confirm-wrap').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirm-wrap').classList.remove('open'); }
+
+/* ── VIBE CHECK-IN ───────────────────────────────────────── */
+function toggleVC(type) {
+  S.vcSel[type] = !S.vcSel[type];
+  document.getElementById('vc-'+type)?.classList.toggle('sel', S.vcSel[type]);
+}
+async function submitVibe() {
+  if (!S.current) return;
+  try {
+    const vcHeaders = {'Content-Type':'application/json'};
+    if (Auth.token) vcHeaders['Authorization'] = `Bearer ${Auth.token}`;
+    await fetch(`/places/${encodeURIComponent(S.current.id)}/vibe-report`, {
+      method:'POST', headers: vcHeaders,
+      body: JSON.stringify({lively:S.vcSel.lively, fun:S.vcSel.fun, good:S.vcSel.good})
+    });
+    toast('Live vibe reported! 🙌', false, '✓');
+    const btn = document.getElementById('vc-submit-btn');
+    if (btn) { btn.textContent = '✓ Thank you!'; btn.disabled = true; btn.style.opacity = '.6'; }
+  } catch { toast('Failed to submit', true); }
+}
+
+/* ── CLOSE DRAWER ────────────────────────────────────────── */
+function quickReserve(event, id, name, img) {
+  event.stopPropagation();
+  // Open drawer then scroll straight to the reservation panel
+  openDrawer({id, name}, img).then?.(() => {});
+  openDrawer({id, name}, img);
+  setTimeout(() => {
+    const panel = document.querySelector('.reserve-panel');
+    if (panel) panel.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 600);
+}
+
+function closeDrawer() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handleOverlayClick(e) { if (e.target === document.getElementById('overlay')) closeDrawer(); }
+function sharePlace() {
+  if (navigator.share && S.current) navigator.share({title:S.current.name}).catch(()=>{});
+  else toast('Link copied!', false, '↗');
+}
+
+/* ── LEADERBOARD ─────────────────────────────────────────── */
+const LB_BASE = [
+  {name:'Sophia Chen',    flag:'🇺🇸', score:4218, streak:12, rank:1, av:'https://i.pravatar.cc/80?img=1'},
+  {name:'Marcus Bell',    flag:'🇬🇧', score:3890, streak:8,  rank:2, av:'https://i.pravatar.cc/80?img=3'},
+  {name:'Aisha Okon',     flag:'🇳🇬', score:3655, streak:5,  rank:3, av:'https://i.pravatar.cc/80?img=5'},
+  {name:'Ryo Tanaka',     flag:'🇯🇵', score:3100, streak:4,  rank:4, av:'https://i.pravatar.cc/80?img=8'},
+  {name:'Elena Russo',    flag:'🇮🇹', score:2880, streak:3,  rank:5, av:'https://i.pravatar.cc/80?img=9'},
+  {name:'Jake Turner',    flag:'🇺🇸', score:2540, streak:7,  rank:6, av:'https://i.pravatar.cc/80?img=11'},
+  {name:'Priya Nair',     flag:'🇮🇳', score:2310, streak:2,  rank:7, av:'https://i.pravatar.cc/80?img=16'},
+  {name:'Omar Khalil',    flag:'🇦🇪', score:1990, streak:6,  rank:8, av:'https://i.pravatar.cc/80?img=20'},
+];
+
+function getLbData() {
+  const me = Auth.isLoggedIn
+    ? {name: Auth.user.name, flag:'🏠', score:1240, streak:3, rank:9, av: Auth.avatarUrl(Auth.user.avatar_seed), me:true}
+    : {name:'You', flag:'🏠', score:1240, streak:3, rank:9, av:'https://i.pravatar.cc/80?img=47', me:true};
+  return [...LB_BASE, me];
+}
+
+function buildLeaderboard() {
+  const pod = document.getElementById('lb-podium');
+  const list = document.getElementById('lb-full-list');
+  if (!pod || !list) return;
+  pod.innerHTML = ''; list.innerHTML = '';
+  const LB_DATA = getLbData();
+
+  const top = LB_DATA.slice(0,3);
+  const order = [top[1], top[0], top[2]]; // silver center-left, gold center, bronze right
+  const cls = ['s','g','b'];
+  order.forEach((p,i) => {
+    const c = p.rank===1?'g':p.rank===2?'s':'b';
+    const h = {g:56,s:40,b:28}[c];
+    pod.innerHTML += `<div class="lb-pod">
+      <div style="position:relative;display:inline-block">
+        <div class="pod-av ${c}"><img src="${p.av}" alt="${p.name}"><div class="pod-badge ${c}">${p.rank}</div></div>
+      </div>
+      <div class="pod-name">${p.name.split(' ')[0]}</div>
+      <div class="pod-score">${p.score.toLocaleString()}</div>
+      <div class="pod-block ${c}" style="height:${h}px">${p.flag}</div>
+    </div>`;
+  });
+
+  LB_DATA.slice(3).forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'lb-row' + (p.me?' me':'');
+    row.innerHTML = `<div class="lb-rank">${p.rank}</div>
+      <div class="lb-av"><img src="${p.av}" alt="${p.name}"></div>
+      <div class="lb-info">
+        <div class="lb-name">${p.name} ${p.flag} ${p.me ? '<span style="font-size:11px;color:var(--muted);font-weight:400">(You)</span>' : ''}</div>
+        <div class="lb-sub">🔥 ${p.streak}-week streak</div>
+      </div>
+      <div class="lb-score">${p.score.toLocaleString()}</div>`;
+    list.appendChild(row);
+  });
+}
+
+function buildLbStrip() {
+  const el = document.getElementById('lb-strip');
+  if (!el) return;
+  getLbData().slice(0,5).forEach((p,i) => {
+    const card = document.createElement('div');
+    card.style.cssText = 'flex-shrink:0;width:160px;background:var(--card);border-radius:16px;padding:18px;text-align:center;box-shadow:var(--sh-sm)';
+    card.innerHTML = `<div style="position:relative;display:inline-block;margin-bottom:8px">
+      <img src="${p.av}" style="width:52px;height:52px;border-radius:50%;border:2px solid ${{1:'#F7D800',2:'#B8B8B8',3:'#C68642'}[p.rank]||'var(--border)'}">
+      <div style="position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:${{1:'#F7D800',2:'#B8B8B8',3:'#C68642'}[p.rank]||'var(--border)'};font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">${p.rank}</div>
+    </div>
+    <div style="font-size:13px;font-weight:600">${p.name.split(' ')[0]}</div>
+    <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-top:2px">${p.score.toLocaleString()}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:2px">🔥 ${p.streak}wk</div>`;
+    el.appendChild(card);
+  });
+}
+
+/* ── UTILS ───────────────────────────────────────────────── */
+async function apiFetch(url) {
+  const headers = {};
+  if (Auth.token) headers['Authorization'] = `Bearer ${Auth.token}`;
+  const r = await fetch(url, {headers});
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+/* ── AI CHAT WIDGET ───────────────────────────────────────── */
+let CHAT_OPEN = false;
+
+function toggleChat() {
+  CHAT_OPEN = !CHAT_OPEN;
+  document.getElementById('chat-panel').classList.toggle('hide', !CHAT_OPEN);
+}
+
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const body = document.getElementById('chat-body');
+  const btn = document.getElementById('chat-send-btn');
+
+  // User bubble
+  const userBubble = document.createElement('div');
+  userBubble.className = 'chat-bubble-user';
+  userBubble.textContent = text;
+  body.appendChild(userBubble);
+  input.value = '';
+  btn.disabled = true;
+  btn.textContent = '…';
+
+  // Typing indicator
+  const typing = document.createElement('div');
+  typing.className = 'chat-typing';
+  typing.innerHTML = '<div class="chat-typing-dots"><span></span><span></span><span></span></div>';
+  body.appendChild(typing);
+  body.scrollTop = body.scrollHeight;
+
+  try {
+    const chatHeaders = {'Content-Type': 'application/json'};
+    if (Auth.token) chatHeaders['Authorization'] = `Bearer ${Auth.token}`;
+    const resp = await fetch('/places/ai-chat', {
+      method: 'POST',
+      headers: chatHeaders,
+      body: JSON.stringify({message: text, lat: S.lat, lng: S.lng}),
+    });
+    const data = await resp.json();
+    typing.remove();
+
+    const raw = data.reply || "Sorry, I couldn't find anything. Try rephrasing?";
+
+    // Parse [chip] lines
+    const lines = raw.split(/\r?\n/);
+    const textLines = [];
+    const chips = [];
+    for (const line of lines) {
+      const m = line.match(/^\s*\[chip\]\s*(.+)$/i);
+      if (m) chips.push(m[1]);
+      else textLines.push(line);
+    }
+
+    // AI text bubble
+    const aiBubble = document.createElement('div');
+    aiBubble.className = 'chat-bubble-ai';
+    aiBubble.textContent = textLines.join('\n').trim();
+    body.appendChild(aiBubble);
+
+    // Place cards — portrait mini-card row
+    if (Array.isArray(data.places) && data.places.length) {
+      const row = document.createElement('div');
+      row.className = 'chat-cards-row';
+      data.places.slice(0, 6).forEach(p => {
+        row.appendChild(buildChatCard(p));
+      });
+      body.appendChild(row);
+    }
+
+    // Suggestion chips
+    if (chips.length) {
+      const chipWrap = document.createElement('div');
+      chipWrap.className = 'chat-chips';
+      chips.forEach(label => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chat-chip';
+        b.textContent = label;
+        b.onclick = () => {
+          input.value = label;
+          sendChat();
+        };
+        chipWrap.appendChild(b);
+      });
+      body.appendChild(chipWrap);
+    }
+
+    body.scrollTop = body.scrollHeight;
+  } catch {
+    typing.remove();
+    const err = document.createElement('div');
+    err.className = 'chat-bubble-ai';
+    err.textContent = 'The AI concierge is temporarily unavailable. Please try again.';
+    body.appendChild(err);
+    body.scrollTop = body.scrollHeight;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '↑';
+  }
+}
+
+function buildChatCard(p) {
+  const img = p.photo_url || photo(p.id);
+  const saved = S.savedIds.has(p.id);
+  const tags = (p.vibe_tags || p.types || []).slice(0, 2).map(t => t.replace(/_/g, ' '));
+
+  const card = document.createElement('div');
+  card.className = 'chat-card';
+  card.innerHTML = `
+    <div class="chat-card-img"><img src="${img}" alt="${esc(p.name)}" loading="lazy"></div>
+    <div class="chat-card-overlay"></div>
+    <div class="chat-card-rating">
+      <svg style="width:10px;height:10px;fill:#FFD600;flex-shrink:0" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      ${p.rating ? Number(p.rating).toFixed(1) : '—'}
+    </div>
+    <button class="chat-card-save ${saved ? 'saved' : ''}" onclick="chatCardSave(event,'${esc(p.id)}',this,'${esc(p.name)}','${esc(p.address||'')}','${img}')">${saved ? '🔖' : '🏷'}</button>
+    <div class="chat-card-body">
+      <div class="chat-card-name">${esc(p.name)}</div>
+      <div class="chat-card-addr">📍 ${esc(p.address || 'Nearby')}</div>
+      ${tags.length ? `<div class="chat-card-tags">${tags.map(t => `<span class="chat-card-tag">${t}</span>`).join('')}</div>` : ''}
+      <button class="chat-card-reserve" onclick="chatCardReserve(event,'${esc(p.id)}','${esc(p.name)}','${img}')">Reserve</button>
+    </div>`;
+
+  card.addEventListener('click', e => {
+    if (e.target.closest('.chat-card-save') || e.target.closest('.chat-card-reserve')) return;
+    openDrawer(p, img);
+    toggleChat();
+  });
+  return card;
+}
+
+function chatCardSave(event, id, btn, name, address, img) {
+  event.stopPropagation();
+  toggleSave(event, id, btn);
+  // Ensure the saved entry has full data for the saved view
+  if (S.savedIds.has(id) && !S.savedPlaces.find(p => p.id === id)) {
+    S.savedPlaces.push({id, name, address, img, rating: ''});
+    persist();
+  }
+}
+
+function chatCardReserve(event, id, name, img) {
+  event.stopPropagation();
+  openDrawer({id, name}, img);
+  toggleChat();
+  setTimeout(() => {
+    const panel = document.querySelector('.reserve-panel');
+    if (panel) panel.scrollIntoView({behavior: 'smooth', block: 'center'});
+  }, 700);
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── AUTH STATE ───────────────────────────────────────────── */
+const Auth = {
+  token: localStorage.getItem('vc_token') || null,
+  user: JSON.parse(localStorage.getItem('vc_user') || 'null'),
+
+  save(token, user) {
+    this.token = token; this.user = user;
+    localStorage.setItem('vc_token', token);
+    localStorage.setItem('vc_user', JSON.stringify(user));
+    this.updateNav();
+  },
+  clear() {
+    this.token = null; this.user = null;
+    localStorage.removeItem('vc_token');
+    localStorage.removeItem('vc_user');
+    this.updateNav();
+  },
+  get isLoggedIn() { return !!this.token && !!this.user; },
+  avatarUrl(seed) { return `https://i.pravatar.cc/80?img=${seed || 47}`; },
+
+  updateNav() {
+    const navRight = document.querySelector('.nav-right');
+    const old = document.getElementById('nav-auth-area');
+    if (old) old.remove();
+
+    const wrap = document.createElement('div');
+    wrap.id = 'nav-auth-area';
+    wrap.style.cssText = 'position:relative;display:flex;align-items:center;gap:10px';
+
+    if (this.isLoggedIn) {
+      const av = document.createElement('div');
+      av.className = 'nav-avatar';
+      av.title = this.user.name;
+      av.innerHTML = `<img src="${this.avatarUrl(this.user.avatar_seed)}" alt="${esc(this.user.name)}">`;
+      av.onclick = (e) => { e.stopPropagation(); toggleProfileMenu(); };
+
+      const menu = document.createElement('div');
+      menu.className = 'profile-menu';
+      menu.id = 'profile-menu';
+      menu.innerHTML = `
+        <div class="profile-name">${esc(this.user.name)}</div>
+        <div class="profile-menu-sep"></div>
+        <div class="profile-menu-item" onclick="showPage('leaderboard',document.querySelectorAll('.nav-link')[3]);closeProfileMenu()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Leaderboard
+        </div>
+        <div class="profile-menu-item" onclick="showPage('saved',document.querySelectorAll('.nav-link')[2]);closeProfileMenu()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          My Saved
+        </div>
+        <div class="profile-menu-sep"></div>
+        <div class="profile-menu-item danger" onclick="authSignOut()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </div>`;
+      wrap.appendChild(av);
+      wrap.appendChild(menu);
+    } else {
+      const btn = document.createElement('button');
+      btn.className = 'nav-signin-btn';
+      btn.textContent = 'Sign In';
+      btn.onclick = () => openAuthModal('login');
+      wrap.appendChild(btn);
+    }
+
+    navRight.appendChild(wrap);
+  }
+};
+
+function toggleProfileMenu() {
+  const m = document.getElementById('profile-menu');
+  if (m) m.classList.toggle('open');
+}
+function closeProfileMenu() {
+  const m = document.getElementById('profile-menu');
+  if (m) m.classList.remove('open');
+}
+
+/* ── AUTH MODAL ───────────────────────────────────────────── */
+function openAuthModal(tab = 'login') {
+  document.getElementById('auth-backdrop').classList.add('open');
+  switchAuthTab(tab);
+  setTimeout(() => {
+    const first = document.querySelector('#auth-backdrop input');
+    if (first) first.focus();
+  }, 200);
+}
+function closeAuthModal() {
+  document.getElementById('auth-backdrop').classList.remove('open');
+  document.getElementById('auth-err').classList.remove('show');
+}
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.getElementById('auth-login-form').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('auth-register-form').style.display = tab === 'register' ? '' : 'none';
+  document.getElementById('auth-err').classList.remove('show');
+}
+
+async function authLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('auth-err');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  err.classList.remove('show');
+  try {
+    const r = await fetch('/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email, password})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || 'Login failed');
+    Auth.save(d.access_token, d.user);
+    closeAuthModal();
+    toast(`Welcome back, ${d.user.name.split(' ')[0]}! 👋`, false, '✓');
+    buildLeaderboard();
+  } catch(ex) {
+    err.textContent = ex.message; err.classList.add('show');
+  } finally { btn.disabled = false; btn.textContent = 'Sign In'; }
+}
+
+async function authRegister(e) {
+  e.preventDefault();
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const btn = document.getElementById('register-btn');
+  const err = document.getElementById('auth-err');
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  err.classList.remove('show');
+  try {
+    const r = await fetch('/auth/register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name, email, password})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || 'Registration failed');
+    Auth.save(d.access_token, d.user);
+    closeAuthModal();
+    toast(`Welcome to VibeCheck, ${d.user.name.split(' ')[0]}! 🎉`, false, '✓');
+    buildLeaderboard();
+  } catch(ex) {
+    err.textContent = ex.message; err.classList.add('show');
+  } finally { btn.disabled = false; btn.textContent = 'Create Account'; }
+}
+
+function authSignOut() {
+  Auth.clear();
+  closeProfileMenu();
+  toast('Signed out. See you soon!', false, '👋');
+  buildLeaderboard();
+}
+
+function emptyHTML(h, p) {
+  return `<div class="empty"><div class="empty-emoji">😕</div><div class="empty-h">${h}</div><div class="empty-p">${p}</div></div>`;
+}
+
+function toast(msg, err=false, icon='') {
+  const c = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = icon ? `<div class="t-icon ${err?'err':'ok'}">${icon}</div>${esc(msg)}` : esc(msg);
+  c.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('in'));
+  setTimeout(() => { t.classList.remove('in'); setTimeout(() => t.remove(), 300); }, 3000);
+}
+</script>
+
+<!-- ── AUTH MODAL ──────────────────────────────────────── -->
+<div class="auth-backdrop" id="auth-backdrop" onclick="if(event.target===this)closeAuthModal()">
+  <div class="auth-modal">
+    <button class="auth-close" onclick="closeAuthModal()">✕</button>
+    <div class="auth-logo">VibeCheck</div>
+    <div class="auth-tagline">Your dining concierge — personalized, real-time.</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" data-tab="register" onclick="switchAuthTab('register')">Create Account</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <form id="auth-login-form" onsubmit="authLogin(event)">
+      <div class="auth-field">
+        <label>Email</label>
+        <input id="login-email" type="email" placeholder="you@example.com" required autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input id="login-password" type="password" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+      <button class="auth-submit" id="login-btn" type="submit">Sign In</button>
+    </form>
+
+    <!-- REGISTER FORM -->
+    <form id="auth-register-form" style="display:none" onsubmit="authRegister(event)">
+      <div class="auth-field">
+        <label>Full Name</label>
+        <input id="reg-name" type="text" placeholder="Your name" required autocomplete="name">
+      </div>
+      <div class="auth-field">
+        <label>Email</label>
+        <input id="reg-email" type="email" placeholder="you@example.com" required autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Password <span style="font-weight:400;color:var(--muted)">(min 6 chars)</span></label>
+        <input id="reg-password" type="password" placeholder="••••••••" required minlength="6" autocomplete="new-password">
+      </div>
+      <button class="auth-submit" id="register-btn" type="submit">Create Account</button>
+    </form>
+
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+</div>
+</body>
+</html>
